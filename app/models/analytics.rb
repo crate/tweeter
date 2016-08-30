@@ -1,28 +1,19 @@
-require 'cassandra'
+require 'crate_ruby'
 require 'time'
 
-# Tweet class that talks to Cassandra
+# Tweet class that talks to Crate
 class Analytics
-  @@cluster = Cassandra.cluster(CASSANDRA_OPTIONS)
-  @@keyspace = 'tweeter'
-  @@session  = @@cluster.connect(@@keyspace)
-  @@paging_state = nil
+  @client = CrateRuby::Client.new(CRATE_OPTIONS[:hosts])
 
   attr_accessor :key, :frequency
 
-  def self.all(paged = false)
-    results = @@session.execute(
-      'SELECT key, frequency FROM analytics ' \
-      'WHERE kind = ? ORDER BY frequency DESC',
-      arguments: ['tweet'],
-      page_size: 25,
-      paging_state: (paged ? @@paging_state : nil)
-    )
-    @@paging_state = results.paging_state
-    results.map do |anal|
+  def self.all(_paged = false)
+
+    results = @client.execute("SELECT key, frequency FROM tweeter.analytics WHERE kind='tweet' ORDER BY frequency DESC")
+    results.map do |a|
       c = Analytics.new
-      c.key, c.frequency = anal['key'], anal['frequency']
+      c.key, c.frequency = a[0], a[1]
       c
     end
-  end
+   end
 end
