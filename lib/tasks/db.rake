@@ -7,18 +7,18 @@ namespace :crate do
 
     session.execute(
       "CREATE TABLE IF NOT EXISTS tweeter.tweets ( \
-          kind string primary key, \
+          kind string, \
           id string, \
           content string, \
-          created_at timestamp primary key, \
+          created_at timestamp, \
           handle string \
       )"
     )
     session.execute(
       "CREATE TABLE IF NOT EXISTS tweeter.analytics ( \
-          kind string primary key, \
+          kind string, \
           key string, \
-          frequency integer primary key \
+          frequency integer \
       )"
     )
   end
